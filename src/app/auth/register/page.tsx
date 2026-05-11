@@ -1,15 +1,20 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
-import { Leaf } from "lucide-react";
+import { Leaf, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-
-export const metadata: Metadata = {
-  title: "Create Account",
-};
+import { register } from "@/app/auth/actions";
+import { useActionState } from "react";
+import type { AuthState } from "@/app/auth/actions";
 
 export default function RegisterPage() {
+  const [state, formAction, pending] = useActionState<AuthState, FormData>(
+    register,
+    { error: null }
+  );
+
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
@@ -21,43 +26,46 @@ export default function RegisterPage() {
             <span className="text-xl font-bold text-[var(--foreground)]">GrowingWeed.com</span>
           </Link>
           <h1 className="text-2xl font-bold text-[var(--foreground)] mt-6 mb-2">Create your account</h1>
-          <p className="text-sm text-[var(--muted)]">
-            Join the GrowingWeed.com community
-          </p>
+          <p className="text-sm text-[var(--muted)]">Join the GrowingWeed.com community</p>
         </div>
 
         <Card>
           <CardContent className="p-6">
-            <form className="space-y-4">
+            {state.error && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {state.error}
+              </div>
+            )}
+
+            <form action={formAction} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
                   Username
                 </label>
-                <Input placeholder="cannabisfan420" required />
+                <Input name="username" placeholder="cannabisfan420" required />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
                   Email
                 </label>
-                <Input type="email" placeholder="you@example.com" required />
+                <Input type="email" name="email" placeholder="you@example.com" required />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
                   Password
                 </label>
-                <Input type="password" placeholder="••••••••" required />
-                <p className="text-xs text-[var(--muted)] mt-1.5">
-                  At least 8 characters
-                </p>
+                <Input type="password" name="password" placeholder="••••••••" required />
+                <p className="text-xs text-[var(--muted)] mt-1.5">At least 8 characters</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--foreground)] mb-1.5">
                   Confirm Password
                 </label>
-                <Input type="password" placeholder="••••••••" required />
+                <Input type="password" name="confirm_password" placeholder="••••••••" required />
               </div>
 
               <div className="flex items-start gap-2 pt-1">
@@ -71,13 +79,13 @@ export default function RegisterPage() {
                   I agree to the{" "}
                   <Link href="/terms" className="text-[var(--primary)] hover:underline">Terms of Service</Link>
                   {" "}and{" "}
-                  <Link href="/privacy" className="text-[var(--primary)] hover:underline">Privacy Policy</Link>
-                  . I confirm I am 21 years of age or older.
+                  <Link href="/privacy" className="text-[var(--primary)] hover:underline">Privacy Policy</Link>.
+                  I confirm I am 21 years of age or older.
                 </label>
               </div>
 
-              <Button type="submit" className="w-full" size="lg">
-                Create Account
+              <Button type="submit" className="w-full" size="lg" disabled={pending}>
+                {pending ? "Creating account…" : "Create Account"}
               </Button>
             </form>
 
@@ -91,8 +99,8 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="w-full">
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+              <Button variant="outline" className="w-full" type="button">
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -100,7 +108,7 @@ export default function RegisterPage() {
                 </svg>
                 Google
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" type="button">
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
                 </svg>

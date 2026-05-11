@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { strains } from "@/lib/data/strains";
+import { getStrains } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Cannabis Strains",
@@ -22,7 +22,8 @@ const typeVariant: Record<string, "indica" | "sativa" | "hybrid"> = {
   hybrid: "hybrid",
 };
 
-export default function StrainsPage() {
+export default async function StrainsPage() {
+  const strains = await getStrains();
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}

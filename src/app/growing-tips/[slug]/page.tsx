@@ -5,7 +5,7 @@ import { ChevronLeft, Clock, Share2, Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { growingTips } from "@/lib/data/growing-tips";
+import { getGrowingTipBySlug, getGrowingTips } from "@/lib/db";
 import { formatDate, cn } from "@/lib/utils";
 
 interface Props {
@@ -14,13 +14,9 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const tip = growingTips.find((t) => t.slug === slug);
+  const tip = await getGrowingTipBySlug(slug);
   if (!tip) return {};
   return { title: tip.title, description: tip.excerpt };
-}
-
-export function generateStaticParams() {
-  return growingTips.map((t) => ({ slug: t.slug }));
 }
 
 const difficultyStyle = {
@@ -31,10 +27,13 @@ const difficultyStyle = {
 
 export default async function GrowingTipDetailPage({ params }: Props) {
   const { slug } = await params;
-  const tip = growingTips.find((t) => t.slug === slug);
+  const [tip, allTips] = await Promise.all([
+    getGrowingTipBySlug(slug),
+    getGrowingTips(),
+  ]);
   if (!tip) notFound();
 
-  const related = growingTips.filter((t) => t.id !== tip.id).slice(0, 3);
+  const related = allTips.filter((t) => t.id !== tip.id).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

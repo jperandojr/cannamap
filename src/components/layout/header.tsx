@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Search, Menu, X, Leaf, LogIn } from "lucide-react";
+import { Search, Menu, X, Leaf, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { logout } from "@/app/auth/actions";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const navLinks = [
   { href: "/strains", label: "Strains" },
@@ -16,10 +18,22 @@ const navLinks = [
   { href: "/growing-tips", label: "Growing Tips" },
 ];
 
-export function Header() {
+interface HeaderProps {
+  user: SupabaseUser | null;
+}
+
+export function Header({ user }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value.trim();
+    if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/80">
@@ -62,15 +76,58 @@ export function Header() {
             >
               <Search className="h-4 w-4" />
             </button>
-            <Link href="/auth/login">
-              <Button variant="ghost" size="sm">
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button size="sm">Sign Up</Button>
-            </Link>
+
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--surface)] transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[var(--primary)]/20 flex items-center justify-center">
+                    <User className="h-3.5 w-3.5 text-[var(--primary)]" />
+                  </div>
+                  <span className="text-sm text-[var(--foreground)] max-w-[120px] truncate">
+                    {user.email?.split("@")[0]}
+                  </span>
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[var(--border)] bg-[var(--background)] shadow-lg z-20 py-1 overflow-hidden">
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4 text-[var(--muted)]" /> My Profile
+                      </Link>
+                      <div className="border-t border-[var(--border)] my-1" />
+                      <form action={logout}>
+                        <button
+                          type="submit"
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="h-4 w-4" /> Sign Out
+                        </button>
+                      </form>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="ghost" size="sm">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button size="sm">Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -86,11 +143,14 @@ export function Header() {
         {/* Search bar */}
         {searchOpen && (
           <div className="pb-4">
-            <Input
-              placeholder="Search strains, dispensaries, news..."
-              icon={<Search className="h-4 w-4" />}
-              autoFocus
-            />
+            <form onSubmit={handleSearch}>
+              <Input
+                name="q"
+                placeholder="Search strains, dispensaries, news..."
+                icon={<Search className="h-4 w-4" />}
+                autoFocus
+              />
+            </form>
           </div>
         )}
       </div>
@@ -115,16 +175,22 @@ export function Header() {
               </Link>
             ))}
             <div className="flex gap-2 pt-2 border-t border-[var(--border)] mt-2">
-              <Link href="/auth/login" className="flex-1">
-                <Button variant="outline" size="sm" className="w-full">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/register" className="flex-1">
-                <Button size="sm" className="w-full">
-                  Sign Up
-                </Button>
-              </Link>
+              {user ? (
+                <form action={logout} className="w-full">
+                  <Button variant="outline" size="sm" className="w-full" type="submit">
+                    <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                  </Button>
+                </form>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">Sign In</Button>
+                  </Link>
+                  <Link href="/auth/register" className="flex-1">
+                    <Button size="sm" className="w-full">Sign Up</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

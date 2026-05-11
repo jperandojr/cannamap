@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
-import { dispensaries } from "@/lib/data/dispensaries";
+import { getDispensaryBySlug } from "@/lib/db";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,20 +14,16 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const dispensary = dispensaries.find((d) => d.slug === slug);
+  const dispensary = await getDispensaryBySlug(slug);
   if (!dispensary) return {};
   return { title: dispensary.name, description: dispensary.description.slice(0, 160) };
-}
-
-export function generateStaticParams() {
-  return dispensaries.map((d) => ({ slug: d.slug }));
 }
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default async function DispensaryDetailPage({ params }: Props) {
   const { slug } = await params;
-  const dispensary = dispensaries.find((d) => d.slug === slug);
+  const dispensary = await getDispensaryBySlug(slug);
   if (!dispensary) notFound();
 
   const today = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());

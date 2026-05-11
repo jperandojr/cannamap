@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { growingTips } from "@/lib/data/growing-tips";
+import { getGrowingTips } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -22,7 +22,8 @@ const difficultyStyle = {
   advanced: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
-export default function GrowingTipsPage() {
+export default async function GrowingTipsPage() {
+  const growingTips = await getGrowingTips();
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}

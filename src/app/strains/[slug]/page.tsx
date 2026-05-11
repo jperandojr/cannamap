@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { strains } from "@/lib/data/strains";
+import { getStrainBySlug, getStrains } from "@/lib/db";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,16 +14,12 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const strain = strains.find((s) => s.slug === slug);
+  const strain = await getStrainBySlug(slug);
   if (!strain) return {};
   return {
     title: strain.name,
     description: strain.description.slice(0, 160),
   };
-}
-
-export function generateStaticParams() {
-  return strains.map((s) => ({ slug: s.slug }));
 }
 
 const typeVariant: Record<string, "indica" | "sativa" | "hybrid"> = {
@@ -34,10 +30,13 @@ const typeVariant: Record<string, "indica" | "sativa" | "hybrid"> = {
 
 export default async function StrainDetailPage({ params }: Props) {
   const { slug } = await params;
-  const strain = strains.find((s) => s.slug === slug);
+  const [strain, allStrains] = await Promise.all([
+    getStrainBySlug(slug),
+    getStrains(),
+  ]);
   if (!strain) notFound();
 
-  const related = strains.filter((s) => s.type === strain.type && s.id !== strain.id).slice(0, 3);
+  const related = allStrains.filter((s) => s.type === strain.type && s.id !== strain.id).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { articles } from "@/lib/data/articles";
+import { getArticles } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -15,7 +15,8 @@ export const metadata: Metadata = {
 
 const categories = ["All", "News", "Science", "Wellness", "Education", "Business", "Law"];
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const articles = await getArticles();
   const [featured, ...rest] = articles;
 
   return (

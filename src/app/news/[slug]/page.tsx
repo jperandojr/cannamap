@@ -5,7 +5,7 @@ import { ChevronLeft, Clock, Share2, Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { articles } from "@/lib/data/articles";
+import { getArticleBySlug, getArticles } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 
 interface Props {
@@ -14,21 +14,20 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = articles.find((a) => a.slug === slug);
+  const article = await getArticleBySlug(slug);
   if (!article) return {};
   return { title: article.title, description: article.excerpt };
 }
 
-export function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.slug }));
-}
-
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const article = articles.find((a) => a.slug === slug);
+  const [article, allArticles] = await Promise.all([
+    getArticleBySlug(slug),
+    getArticles(),
+  ]);
   if (!article) notFound();
 
-  const related = articles.filter((a) => a.id !== article.id).slice(0, 3);
+  const related = allArticles.filter((a) => a.id !== article.id).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: {
@@ -13,13 +14,16 @@ export const metadata: Metadata = {
   keywords: ["cannabis", "marijuana", "strains", "dispensaries", "seed banks", "growing tips"],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <Header />
+        <Header user={user} />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

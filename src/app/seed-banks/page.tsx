@@ -6,14 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { seedBanks } from "@/lib/data/seed-banks";
+import { getSeedBanks } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Seed Banks",
   description: "Discover the world's top cannabis seed banks. Find feminized, autoflowering, and regular seeds.",
 };
 
-export default function SeedBanksPage() {
+export default async function SeedBanksPage() {
+  const seedBanks = await getSeedBanks();
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">

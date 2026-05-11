@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { dispensaries } from "@/lib/data/dispensaries";
+import { getDispensaries } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Dispensaries",
@@ -16,7 +16,8 @@ export const metadata: Metadata = {
 const states = ["All States", "CA", "CO", "OR", "WA", "NV", "AZ", "MI", "IL", "MA", "NY"];
 const amenities = ["Delivery", "Online Ordering", "ATM", "ADA Accessible", "Parking", "Medical"];
 
-export default function DispensariesPage() {
+export default async function DispensariesPage() {
+  const dispensaries = await getDispensaries();
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}

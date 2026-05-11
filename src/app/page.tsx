@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
-import { strains } from "@/lib/data/strains";
-import { articles } from "@/lib/data/articles";
-import { growingTips } from "@/lib/data/growing-tips";
+import { getStrains, getArticles, getGrowingTips } from "@/lib/db";
 import { Input } from "@/components/ui/input";
 import { formatDate } from "@/lib/utils";
 
@@ -55,7 +53,12 @@ const strainTypeColor: Record<string, "indica" | "sativa" | "hybrid"> = {
   hybrid: "hybrid",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [strains, articles, growingTips] = await Promise.all([
+    getStrains(),
+    getArticles(),
+    getGrowingTips(),
+  ]);
   const featuredStrains = strains.slice(0, 4);
   const latestArticles = articles.slice(0, 3);
   const featuredTip = growingTips[0];

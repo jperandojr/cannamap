@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
-import { seedBanks } from "@/lib/data/seed-banks";
+import { getSeedBankBySlug } from "@/lib/db";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,18 +14,14 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const bank = seedBanks.find((b) => b.slug === slug);
+  const bank = await getSeedBankBySlug(slug);
   if (!bank) return {};
   return { title: bank.name, description: bank.description.slice(0, 160) };
 }
 
-export function generateStaticParams() {
-  return seedBanks.map((b) => ({ slug: b.slug }));
-}
-
 export default async function SeedBankDetailPage({ params }: Props) {
   const { slug } = await params;
-  const bank = seedBanks.find((b) => b.slug === slug);
+  const bank = await getSeedBankBySlug(slug);
   if (!bank) notFound();
 
   return (
