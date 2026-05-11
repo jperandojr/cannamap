@@ -2,12 +2,49 @@ import { createClient } from "@/lib/supabase/server";
 import type { Strain, Dispensary, SeedBank, Article, GrowingTip, Profile } from "@/lib/types";
 
 // --- Strains ---
-export async function getStrains(): Promise<Strain[]> {
+export interface StrainFilters {
+  type?: string;
+  q?: string;
+  sort?: string;
+  thc?: string;
+  effect?: string;
+}
+
+const thcRanges: Record<string, [number, number]> = {
+  "under10": [0, 10],
+  "10-15": [10, 15],
+  "15-20": [15, 20],
+  "20-25": [20, 25],
+  "25plus": [25, 100],
+};
+
+export async function getStrains(filters?: StrainFilters): Promise<Strain[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("strains")
-    .select("*")
-    .order("review_count", { ascending: false });
+  let query = supabase.from("strains").select("*");
+
+  if (filters?.type && filters.type !== "all") {
+    query = query.eq("type", filters.type.toLowerCase());
+  }
+  if (filters?.q) {
+    query = query.ilike("name", `%${filters.q}%`);
+  }
+  if (filters?.effect) {
+    query = query.contains("effects", [filters.effect]);
+  }
+  if (filters?.thc && thcRanges[filters.thc]) {
+    const [min, max] = thcRanges[filters.thc];
+    query = query.gte("thc_max", min).lte("thc_max", max);
+  }
+
+  if (filters?.sort === "rating") {
+    query = query.order("rating", { ascending: false });
+  } else if (filters?.sort === "thc") {
+    query = query.order("thc_max", { ascending: false });
+  } else {
+    query = query.order("review_count", { ascending: false });
+  }
+
+  const { data } = await query;
   return (data as Strain[]) ?? [];
 }
 
@@ -22,12 +59,34 @@ export async function getStrainBySlug(slug: string): Promise<Strain | null> {
 }
 
 // --- Dispensaries ---
-export async function getDispensaries(): Promise<Dispensary[]> {
+export interface DispensaryFilters {
+  q?: string;
+  state?: string;
+  sort?: string;
+  verified?: boolean;
+}
+
+export async function getDispensaries(filters?: DispensaryFilters): Promise<Dispensary[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("dispensaries")
-    .select("*")
-    .order("review_count", { ascending: false });
+  let query = supabase.from("dispensaries").select("*");
+
+  if (filters?.q) {
+    query = query.ilike("name", `%${filters.q}%`);
+  }
+  if (filters?.state && filters.state !== "all") {
+    query = query.eq("state", filters.state.toUpperCase());
+  }
+  if (filters?.verified) {
+    query = query.eq("verified", true);
+  }
+
+  if (filters?.sort === "rating") {
+    query = query.order("rating", { ascending: false });
+  } else {
+    query = query.order("review_count", { ascending: false });
+  }
+
+  const { data } = await query;
   return (data as Dispensary[]) ?? [];
 }
 
