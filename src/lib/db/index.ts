@@ -82,6 +82,26 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   return (data as Article) ?? null;
 }
 
+// --- Search ---
+export async function search(q: string) {
+  const supabase = await createClient();
+  const term = `%${q}%`;
+  const [strains, dispensaries, seedBanks, articles, tips] = await Promise.all([
+    supabase.from("strains").select("id,slug,name,type,image_url,rating,review_count").ilike("name", term).limit(5),
+    supabase.from("dispensaries").select("id,slug,name,city,state,image_url,rating,review_count").ilike("name", term).limit(5),
+    supabase.from("seed_banks").select("id,slug,name,country,rating,review_count").ilike("name", term).limit(5),
+    supabase.from("articles").select("id,slug,title,category,image_url,published_at,read_time").ilike("title", term).not("published_at", "is", null).limit(5),
+    supabase.from("growing_tips").select("id,slug,title,difficulty,category,image_url,published_at,read_time").ilike("title", term).not("published_at", "is", null).limit(5),
+  ]);
+  return {
+    strains: (strains.data ?? []) as Pick<Strain, "id" | "slug" | "name" | "type" | "image_url" | "rating" | "review_count">[],
+    dispensaries: (dispensaries.data ?? []) as Pick<Dispensary, "id" | "slug" | "name" | "city" | "state" | "rating" | "review_count">[],
+    seedBanks: (seedBanks.data ?? []) as Pick<SeedBank, "id" | "slug" | "name" | "country" | "rating" | "review_count">[],
+    articles: (articles.data ?? []) as Pick<Article, "id" | "slug" | "title" | "category" | "image_url" | "published_at" | "read_time">[],
+    tips: (tips.data ?? []) as Pick<GrowingTip, "id" | "slug" | "title" | "difficulty" | "category" | "image_url" | "published_at" | "read_time">[],
+  };
+}
+
 // --- Growing Tips ---
 export async function getGrowingTips(): Promise<GrowingTip[]> {
   const supabase = await createClient();
