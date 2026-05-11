@@ -4,11 +4,11 @@ import Link from "next/link";
 import { ChevronLeft, Leaf, Info, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getStrainBySlug, getStrains } from "@/lib/db";
+import { getStrainBySlug, getStrains, getReviews, getUserReview } from "@/lib/db";
 import { isFavorited } from "@/app/actions/favorites";
 import { FavoriteButton } from "@/components/favorite-button";
+import { ReviewSection } from "@/components/review-section";
 import { createClient } from "@/lib/supabase/server";
 
 interface Props {
@@ -43,8 +43,13 @@ export default async function StrainDetailPage({ params }: Props) {
   if (!strain) notFound();
 
   const related = allStrains.filter((s) => s.type === strain.type && s.id !== strain.id).slice(0, 3);
-  const favorited = user ? await isFavorited("strain", strain.id) : false;
   const pathname = `/strains/${slug}`;
+
+  const [favorited, reviews, userReview] = await Promise.all([
+    user ? isFavorited("strain", strain.id) : Promise.resolve(false),
+    getReviews("strain", strain.id),
+    user ? getUserReview("strain", strain.id) : Promise.resolve(null),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
@@ -156,23 +161,17 @@ export default async function StrainDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Reviews placeholder */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[var(--foreground)]">
-                  Community Reviews ({strain.review_count.toLocaleString()})
-                </h3>
-                <Button size="sm">Write a Review</Button>
-              </div>
-              <div className="text-center py-8 text-[var(--muted)]">
-                <p className="text-sm">Sign in to read and write reviews.</p>
-                <Link href="/auth/login">
-                  <Button variant="outline" size="sm" className="mt-3">
-                    Sign In
-                  </Button>
-                </Link>
-              </div>
+              <ReviewSection
+                entityType="strain"
+                entityId={strain.id}
+                pathname={pathname}
+                reviews={reviews}
+                userReview={userReview}
+                isLoggedIn={!!user}
+                totalCount={strain.review_count}
+              />
             </CardContent>
           </Card>
         </div>

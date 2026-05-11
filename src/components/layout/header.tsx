@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, X, Leaf, LogIn, LogOut, User } from "lucide-react";
+import { Menu, X, Leaf, LogIn, LogOut, User, Heart } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/auth/actions";
@@ -85,6 +85,13 @@ export function Header({ user }: HeaderProps) {
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <User className="h-4 w-4 text-[var(--muted)]" /> My Profile
+                      </Link>
+                      <Link
+                        href="/favorites"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Heart className="h-4 w-4 text-[var(--muted)]" /> My Favorites
                       </Link>
                       <div className="border-t border-[var(--border)] my-1" />
                       <form action={logout}>

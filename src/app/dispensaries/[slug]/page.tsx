@@ -6,9 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
-import { getDispensaryBySlug } from "@/lib/db";
+import { getDispensaryBySlug, getReviews, getUserReview } from "@/lib/db";
 import { isFavorited } from "@/app/actions/favorites";
 import { FavoriteButton } from "@/components/favorite-button";
+import { ReviewSection } from "@/components/review-section";
 import { createClient } from "@/lib/supabase/server";
 
 interface Props {
@@ -32,8 +33,12 @@ export default async function DispensaryDetailPage({ params }: Props) {
   const dispensary = await getDispensaryBySlug(slug);
   if (!dispensary) notFound();
 
-  const favorited = user ? await isFavorited("dispensary", dispensary.id) : false;
   const pathname = `/dispensaries/${slug}`;
+  const [favorited, reviews, userReview] = await Promise.all([
+    user ? isFavorited("dispensary", dispensary.id) : Promise.resolve(false),
+    getReviews("dispensary", dispensary.id),
+    user ? getUserReview("dispensary", dispensary.id) : Promise.resolve(null),
+  ]);
 
   const today = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
 
@@ -135,21 +140,17 @@ export default async function DispensaryDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Reviews */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-[var(--foreground)]">
-                  Reviews ({dispensary.review_count.toLocaleString()})
-                </h2>
-                <Button size="sm">Write a Review</Button>
-              </div>
-              <div className="text-center py-8 text-[var(--muted)]">
-                <p className="text-sm">Sign in to read and write reviews.</p>
-                <Link href="/auth/login">
-                  <Button variant="outline" size="sm" className="mt-3">Sign In</Button>
-                </Link>
-              </div>
+              <ReviewSection
+                entityType="dispensary"
+                entityId={dispensary.id}
+                pathname={pathname}
+                reviews={reviews}
+                userReview={userReview}
+                isLoggedIn={!!user}
+                totalCount={dispensary.review_count}
+              />
             </CardContent>
           </Card>
         </div>

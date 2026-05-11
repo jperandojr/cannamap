@@ -6,7 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
-import { getSeedBankBySlug } from "@/lib/db";
+import { getSeedBankBySlug, getReviews, getUserReview } from "@/lib/db";
+import { ReviewSection } from "@/components/review-section";
+import { createClient } from "@/lib/supabase/server";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -21,8 +23,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SeedBankDetailPage({ params }: Props) {
   const { slug } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const bank = await getSeedBankBySlug(slug);
   if (!bank) notFound();
+
+  const pathname = `/seed-banks/${slug}`;
+  const [reviews, userReview] = await Promise.all([
+    getReviews("seed_bank", bank.id),
+    user ? getUserReview("seed_bank", bank.id) : Promise.resolve(null),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
@@ -91,22 +102,17 @@ export default async function SeedBankDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Reviews */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-[var(--foreground)]">
-                  Reviews ({bank.review_count.toLocaleString()})
-                </h2>
-                <Button size="sm">Write a Review</Button>
-              </div>
-              <div className="text-center py-8 text-[var(--muted)]">
-                <Star className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Sign in to read and write reviews.</p>
-                <Link href="/auth/login">
-                  <Button variant="outline" size="sm" className="mt-3">Sign In</Button>
-                </Link>
-              </div>
+              <ReviewSection
+                entityType="seed_bank"
+                entityId={bank.id}
+                pathname={pathname}
+                reviews={reviews}
+                userReview={userReview}
+                isLoggedIn={!!user}
+                totalCount={bank.review_count}
+              />
             </CardContent>
           </Card>
         </div>

@@ -141,6 +141,76 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   return (data as Article) ?? null;
 }
 
+// --- Favorites ---
+export async function getUserFavorites(userId: string) {
+  const supabase = await createClient();
+  const { data: favs } = await supabase
+    .from("favorites")
+    .select("id, entity_type, entity_id, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (!favs || favs.length === 0) return { strains: [], dispensaries: [], seedBanks: [] };
+
+  const strainIds = favs.filter((f) => f.entity_type === "strain").map((f) => f.entity_id);
+  const dispensaryIds = favs.filter((f) => f.entity_type === "dispensary").map((f) => f.entity_id);
+  const seedBankIds = favs.filter((f) => f.entity_type === "seed_bank").map((f) => f.entity_id);
+
+  const [strains, dispensaries, seedBanks] = await Promise.all([
+    strainIds.length
+      ? supabase.from("strains").select("id,slug,name,type,image_url,rating,review_count").in("id", strainIds)
+      : { data: [] },
+    dispensaryIds.length
+      ? supabase.from("dispensaries").select("id,slug,name,city,state,rating,review_count,images").in("id", dispensaryIds)
+      : { data: [] },
+    seedBankIds.length
+      ? supabase.from("seed_banks").select("id,slug,name,country,rating,review_count").in("id", seedBankIds)
+      : { data: [] },
+  ]);
+
+  return {
+    strains: (strains.data ?? []) as Pick<Strain, "id" | "slug" | "name" | "type" | "image_url" | "rating" | "review_count">[],
+    dispensaries: (dispensaries.data ?? []) as Pick<Dispensary, "id" | "slug" | "name" | "city" | "state" | "rating" | "review_count">[],
+    seedBanks: (seedBanks.data ?? []) as Pick<SeedBank, "id" | "slug" | "name" | "country" | "rating" | "review_count">[],
+  };
+}
+
+// --- Reviews ---
+export interface ReviewWithAuthor {
+  id: string;
+  rating: number;
+  title: string | null;
+  content: string;
+  helpful_count: number;
+  created_at: string;
+  profiles: { username: string; avatar_url: string | null } | null;
+}
+
+export async function getReviews(entityType: string, entityId: string): Promise<ReviewWithAuthor[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("id, rating, title, content, helpful_count, created_at, profiles(username, avatar_url)")
+    .eq("entity_type", entityType)
+    .eq("entity_id", entityId)
+    .order("created_at", { ascending: false });
+  return (data as unknown as ReviewWithAuthor[]) ?? [];
+}
+
+export async function getUserReview(entityType: string, entityId: string): Promise<{ id: string; rating: number; title: string | null; content: string } | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from("reviews")
+    .select("id, rating, title, content")
+    .eq("entity_type", entityType)
+    .eq("entity_id", entityId)
+    .eq("user_id", user.id)
+    .single();
+  return data ?? null;
+}
+
 // --- Profile ---
 export async function getProfile(userId: string): Promise<Profile | null> {
   const supabase = await createClient();
