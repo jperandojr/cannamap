@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, MapPin, Phone, Globe, Clock, CheckCircle, Share2, Heart } from "lucide-react";
+import { ChevronLeft, MapPin, Phone, Globe, Clock, CheckCircle, Share2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
 import { getDispensaryBySlug } from "@/lib/db";
+import { isFavorited } from "@/app/actions/favorites";
+import { FavoriteButton } from "@/components/favorite-button";
+import { createClient } from "@/lib/supabase/server";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -23,8 +26,14 @@ const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 
 export default async function DispensaryDetailPage({ params }: Props) {
   const { slug } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const dispensary = await getDispensaryBySlug(slug);
   if (!dispensary) notFound();
+
+  const favorited = user ? await isFavorited("dispensary", dispensary.id) : false;
+  const pathname = `/dispensaries/${slug}`;
 
   const today = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
 
@@ -67,9 +76,13 @@ export default async function DispensaryDetailPage({ params }: Props) {
               <StarRating rating={dispensary.rating} reviewCount={dispensary.review_count} size="md" className="mt-2" />
             </div>
             <div className="flex gap-2 shrink-0">
-              <button className="p-2 rounded-lg border border-[var(--border)] hover:bg-[var(--surface)] text-[var(--muted)] hover:text-red-400 transition-colors">
-                <Heart className="h-4 w-4" />
-              </button>
+              <FavoriteButton
+                entityType="dispensary"
+                entityId={dispensary.id}
+                initialFavorited={favorited}
+                isLoggedIn={!!user}
+                pathname={pathname}
+              />
               <button className="p-2 rounded-lg border border-[var(--border)] hover:bg-[var(--surface)] text-[var(--muted)] transition-colors">
                 <Share2 className="h-4 w-4" />
               </button>

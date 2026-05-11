@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Leaf, Info, Heart, Share2 } from "lucide-react";
+import { ChevronLeft, Leaf, Info, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStrainBySlug, getStrains } from "@/lib/db";
+import { isFavorited } from "@/app/actions/favorites";
+import { FavoriteButton } from "@/components/favorite-button";
+import { createClient } from "@/lib/supabase/server";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -30,6 +33,9 @@ const typeVariant: Record<string, "indica" | "sativa" | "hybrid"> = {
 
 export default async function StrainDetailPage({ params }: Props) {
   const { slug } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const [strain, allStrains] = await Promise.all([
     getStrainBySlug(slug),
     getStrains(),
@@ -37,6 +43,8 @@ export default async function StrainDetailPage({ params }: Props) {
   if (!strain) notFound();
 
   const related = allStrains.filter((s) => s.type === strain.type && s.id !== strain.id).slice(0, 3);
+  const favorited = user ? await isFavorited("strain", strain.id) : false;
+  const pathname = `/strains/${slug}`;
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
@@ -80,9 +88,13 @@ export default async function StrainDetailPage({ params }: Props) {
               />
             </div>
             <div className="flex gap-2 shrink-0">
-              <button className="p-2 rounded-lg border border-[var(--border)] hover:bg-[var(--surface)] transition-colors text-[var(--muted)] hover:text-red-400">
-                <Heart className="h-4 w-4" />
-              </button>
+              <FavoriteButton
+                entityType="strain"
+                entityId={strain.id}
+                initialFavorited={favorited}
+                isLoggedIn={!!user}
+                pathname={pathname}
+              />
               <button className="p-2 rounded-lg border border-[var(--border)] hover:bg-[var(--surface)] transition-colors text-[var(--muted)]">
                 <Share2 className="h-4 w-4" />
               </button>
