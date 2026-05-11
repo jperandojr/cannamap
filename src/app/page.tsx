@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
 import { getStrains, getArticles, getGrowingTips } from "@/lib/db";
-import { Input } from "@/components/ui/input";
 import { formatDate } from "@/lib/utils";
 
 const categories = [
@@ -89,18 +88,28 @@ export default async function HomePage() {
           </p>
 
           {/* Search */}
-          <div className="max-w-xl mx-auto mb-10">
-            <div className="flex gap-2">
-              <Input
+          <form
+            action="/search"
+            method="get"
+            className="w-full max-w-2xl mx-auto mb-10 px-4 sm:px-0"
+          >
+            <div className="flex items-center rounded-xl border border-[var(--border)] bg-white shadow-sm overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/20 transition-all">
+              <Search className="ml-4 h-5 w-5 text-[var(--muted)] shrink-0" />
+              <input
+                name="q"
+                type="search"
                 placeholder="Search strains, dispensaries, seed banks..."
-                icon={<Search className="h-4 w-4" />}
-                className="h-12 text-base"
+                autoComplete="off"
+                className="flex-1 min-w-0 px-3 py-4 text-base text-[var(--foreground)] placeholder:text-[var(--muted)] bg-transparent outline-none"
               />
-              <Button size="lg" className="shrink-0 px-5">
+              <button
+                type="submit"
+                className="shrink-0 m-1.5 px-5 py-2.5 rounded-lg bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors"
+              >
                 Search
-              </Button>
+              </button>
             </div>
-          </div>
+          </form>
 
           {/* Quick stats */}
           <div className="flex flex-wrap justify-center gap-8 text-sm text-[var(--muted)]">

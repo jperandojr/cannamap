@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Search, Menu, X, Leaf, LogIn, LogOut, User } from "lucide-react";
+import { Menu, X, Leaf, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/auth/actions";
@@ -23,38 +23,31 @@ interface HeaderProps {
 
 export function Header({ user }: HeaderProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value.trim();
-    if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
-  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--background)]/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center gap-3">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)]">
               <Leaf className="h-4 w-4 text-white" />
             </div>
-            <span className="hidden lg:block text-lg font-bold text-[var(--foreground)]">
+            <span className="text-lg font-bold text-[var(--foreground)]">
               GrowingWeed.com
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-0.5 shrink-0">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
+                  "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname.startsWith(link.href)
                     ? "text-[var(--primary)] bg-[var(--primary)]/10"
                     : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
@@ -65,21 +58,8 @@ export function Header({ user }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Search bar — always visible on desktop */}
-          <form onSubmit={handleSearch} className="hidden md:block flex-1 min-w-0">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted)] pointer-events-none" />
-              <input
-                name="q"
-                type="search"
-                placeholder="Search strains, dispensaries, news..."
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] pl-9 pr-4 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-colors"
-              />
-            </div>
-          </form>
-
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
+          <div className="hidden md:flex items-center gap-2">
 
             {user ? (
               <div className="relative">
@@ -149,20 +129,7 @@ export function Header({ user }: HeaderProps) {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-[var(--border)] bg-[var(--surface)]">
-          <div className="p-4 pb-2">
-            <form onSubmit={(e) => { handleSearch(e); setMobileOpen(false); }}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted)] pointer-events-none" />
-                <input
-                  name="q"
-                  type="search"
-                  placeholder="Search strains, dispensaries, news..."
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] pl-9 pr-4 py-2.5 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-colors"
-                />
-              </div>
-            </form>
-          </div>
-          <nav className="flex flex-col px-4 pb-4 gap-1">
+          <nav className="flex flex-col p-4 gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
