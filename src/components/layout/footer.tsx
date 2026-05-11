@@ -13,6 +13,7 @@ const footerLinks = {
     { href: "/growing-tips?difficulty=beginner", label: "Beginner Guides" },
   ],
   Company: [
+    { href: "/submit", label: "Submit a Listing" },
     { href: "/about", label: "About Us" },
     { href: "/contact", label: "Contact" },
     { href: "/advertise", label: "Advertise" },

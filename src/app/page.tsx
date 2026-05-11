@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Search, MapPin, Leaf, Newspaper, Sprout, ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -167,11 +168,13 @@ export default async function HomePage() {
           {featuredStrains.map((strain) => (
             <Link key={strain.id} href={`/strains/${strain.slug}`}>
               <Card hover className="h-full">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <Image
+                    fill
                     src={strain.image_url}
                     alt={strain.name}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                 </div>
                 <CardContent className="p-4">
@@ -212,11 +215,13 @@ export default async function HomePage() {
           {latestArticles.map((article) => (
             <Link key={article.id} href={`/news/${article.slug}`}>
               <Card hover className="h-full">
-                <div className="aspect-video overflow-hidden">
-                  <img
+                <div className="relative aspect-video overflow-hidden">
+                  <Image
+                    fill
                     src={article.image_url}
                     alt={article.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 </div>
                 <CardContent className="p-4">
@@ -226,10 +231,12 @@ export default async function HomePage() {
                   </h3>
                   <p className="text-xs text-[var(--muted)] line-clamp-2">{article.excerpt}</p>
                   <div className="flex items-center gap-2 mt-3">
-                    <img
+                    <Image
                       src={article.author_avatar}
                       alt={article.author_name}
-                      className="w-5 h-5 rounded-full object-cover"
+                      width={20}
+                      height={20}
+                      className="rounded-full object-cover"
                     />
                     <span className="text-xs text-[var(--muted)]">{article.author_name}</span>
                     <span className="text-xs text-[var(--muted)]">·</span>
@@ -258,11 +265,13 @@ export default async function HomePage() {
                 </Button>
               </Link>
             </div>
-            <div className="w-full md:w-72 shrink-0">
-              <img
+            <div className="relative w-full md:w-72 shrink-0 h-48 md:h-56">
+              <Image
+                fill
                 src={featuredTip.image_url}
                 alt={featuredTip.title}
-                className="w-full h-48 md:h-56 object-cover rounded-xl"
+                className="object-cover rounded-xl"
+                sizes="(max-width: 768px) 100vw, 288px"
               />
             </div>
           </div>

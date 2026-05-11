@@ -101,12 +101,26 @@ export async function getDispensaryBySlug(slug: string): Promise<Dispensary | nu
 }
 
 // --- Seed Banks ---
-export async function getSeedBanks(): Promise<SeedBank[]> {
+export interface SeedBankFilters {
+  q?: string;
+  country?: string;
+  sort?: string;
+  verified?: boolean;
+}
+
+export async function getSeedBanks(filters?: SeedBankFilters): Promise<SeedBank[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("seed_banks")
-    .select("*")
-    .order("rating", { ascending: false });
+  let query = supabase.from("seed_banks").select("*");
+
+  if (filters?.q) query = query.ilike("name", `%${filters.q}%`);
+  if (filters?.country && filters.country !== "all") query = query.eq("country", filters.country);
+  if (filters?.verified) query = query.eq("verified", true);
+
+  if (filters?.sort === "strains") query = query.order("strain_count", { ascending: false });
+  else if (filters?.sort === "reviews") query = query.order("review_count", { ascending: false });
+  else query = query.order("rating", { ascending: false });
+
+  const { data } = await query;
   return (data as SeedBank[]) ?? [];
 }
 
@@ -121,13 +135,20 @@ export async function getSeedBankBySlug(slug: string): Promise<SeedBank | null> 
 }
 
 // --- Articles ---
-export async function getArticles(): Promise<Article[]> {
+export interface ArticleFilters {
+  q?: string;
+  category?: string;
+}
+
+export async function getArticles(filters?: ArticleFilters): Promise<Article[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("articles")
-    .select("*")
-    .not("published_at", "is", null)
-    .order("published_at", { ascending: false });
+  let query = supabase.from("articles").select("*").not("published_at", "is", null);
+
+  if (filters?.q) query = query.ilike("title", `%${filters.q}%`);
+  if (filters?.category && filters.category !== "all") query = query.eq("category", filters.category);
+
+  query = query.order("published_at", { ascending: false });
+  const { data } = await query;
   return (data as Article[]) ?? [];
 }
 
@@ -243,13 +264,22 @@ export async function search(q: string) {
 }
 
 // --- Growing Tips ---
-export async function getGrowingTips(): Promise<GrowingTip[]> {
+export interface GrowingTipFilters {
+  q?: string;
+  difficulty?: string;
+  category?: string;
+}
+
+export async function getGrowingTips(filters?: GrowingTipFilters): Promise<GrowingTip[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("growing_tips")
-    .select("*")
-    .not("published_at", "is", null)
-    .order("published_at", { ascending: false });
+  let query = supabase.from("growing_tips").select("*").not("published_at", "is", null);
+
+  if (filters?.q) query = query.ilike("title", `%${filters.q}%`);
+  if (filters?.difficulty && filters.difficulty !== "all") query = query.eq("difficulty", filters.difficulty.toLowerCase());
+  if (filters?.category && filters.category !== "all") query = query.ilike("category", filters.category);
+
+  query = query.order("published_at", { ascending: false });
+  const { data } = await query;
   return (data as GrowingTip[]) ?? [];
 }
 
@@ -261,4 +291,52 @@ export async function getGrowingTipBySlug(slug: string): Promise<GrowingTip | nu
     .eq("slug", slug)
     .single();
   return (data as GrowingTip) ?? null;
+}
+
+// --- Admin ---
+export interface Submission {
+  id: string;
+  type: "dispensary" | "seed_bank";
+  name: string;
+  description: string;
+  website: string | null;
+  contact_email: string;
+  country: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  notes: string | null;
+  user_id: string | null;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+}
+
+export async function getSubmissions(status?: string): Promise<Submission[]> {
+  const supabase = await createClient();
+  let query = supabase.from("submissions").select("*").order("created_at", { ascending: false });
+  if (status && status !== "all") query = query.eq("status", status);
+  const { data } = await query;
+  return (data as Submission[]) ?? [];
+}
+
+export async function getAdminStats() {
+  const supabase = await createClient();
+  const [strains, dispensaries, seedBanks, articles, tips, pending, approved, rejected] = await Promise.all([
+    supabase.from("strains").select("id", { count: "exact", head: true }),
+    supabase.from("dispensaries").select("id", { count: "exact", head: true }),
+    supabase.from("seed_banks").select("id", { count: "exact", head: true }),
+    supabase.from("articles").select("id", { count: "exact", head: true }),
+    supabase.from("growing_tips").select("id", { count: "exact", head: true }),
+    supabase.from("submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("submissions").select("id", { count: "exact", head: true }).eq("status", "approved"),
+    supabase.from("submissions").select("id", { count: "exact", head: true }).eq("status", "rejected"),
+  ]);
+  return {
+    strains: strains.count ?? 0,
+    dispensaries: dispensaries.count ?? 0,
+    seedBanks: seedBanks.count ?? 0,
+    articles: articles.count ?? 0,
+    tips: tips.count ?? 0,
+    submissions: { pending: pending.count ?? 0, approved: approved.count ?? 0, rejected: rejected.count ?? 0 },
+  };
 }

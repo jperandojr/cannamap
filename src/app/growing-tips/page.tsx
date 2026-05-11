@@ -1,33 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, Search, Sprout } from "lucide-react";
+import Image from "next/image";
+import { Suspense } from "react";
+import { Clock, Sprout } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { getGrowingTips } from "@/lib/db";
 import { cn } from "@/lib/utils";
+import { GrowingTipFilters } from "./growing-tip-filters";
 
 export const metadata: Metadata = {
   title: "Cannabis Growing Tips",
   description: "Expert cannabis growing guides for beginners to advanced growers. Learn about lighting, nutrients, training, and more.",
 };
 
-const categories = ["All", "Getting Started", "Training Techniques", "Soil & Nutrients", "Climate Control", "Harvest"];
-const difficulties = ["All", "Beginner", "Intermediate", "Advanced"];
-
-const difficultyStyle = {
-  beginner: "bg-green-500/20 text-green-400 border-green-500/30",
-  intermediate: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  advanced: "bg-red-500/20 text-red-400 border-red-500/30",
+const difficultyStyle: Record<string, string> = {
+  beginner: "bg-green-500/20 text-green-700 border-green-500/30",
+  intermediate: "bg-yellow-500/20 text-yellow-700 border-yellow-500/30",
+  advanced: "bg-red-500/20 text-red-700 border-red-500/30",
 };
 
-export default async function GrowingTipsPage() {
-  const growingTips = await getGrowingTips();
+interface Props {
+  searchParams: Promise<{ difficulty?: string; category?: string }>;
+}
+
+export default async function GrowingTipsPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const growingTips = await getGrowingTips({ difficulty: params.difficulty, category: params.category });
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-4 py-1.5 text-sm text-[var(--primary)] mb-4">
           <Sprout className="h-3.5 w-3.5" /> Expert Growing Guides
         </div>
@@ -39,81 +42,50 @@ export default async function GrowingTipsPage() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="max-w-lg mx-auto mb-10">
-        <Input
-          placeholder="Search growing guides..."
-          icon={<Search className="h-4 w-4" />}
-        />
-      </div>
+      <Suspense>
+        <GrowingTipFilters />
+      </Suspense>
 
-      {/* Difficulty filter */}
-      <div className="flex flex-wrap gap-2 justify-center mb-8">
-        {difficulties.map((d) => (
-          <button
-            key={d}
-            className="px-4 py-1.5 text-sm rounded-full border border-[var(--border)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
-          >
-            {d}
-          </button>
-        ))}
-      </div>
-
-      {/* Category tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-8">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className="shrink-0 px-4 py-1.5 text-sm rounded-full border border-[var(--border)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors whitespace-nowrap"
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {growingTips.map((tip) => (
-          <Link key={tip.id} href={`/growing-tips/${tip.slug}`}>
-            <Card hover className="h-full">
-              <div className="aspect-video overflow-hidden">
-                <img
-                  src={tip.image_url}
-                  alt={tip.title}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                />
-              </div>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span
-                    className={cn(
-                      "text-xs px-2 py-0.5 rounded-full border",
-                      difficultyStyle[tip.difficulty]
-                    )}
-                  >
-                    {tip.difficulty.charAt(0).toUpperCase() + tip.difficulty.slice(1)}
-                  </span>
-                  <Badge variant="default">{tip.category}</Badge>
+      {growingTips.length === 0 ? (
+        <div className="text-center py-20 text-[var(--muted)]">
+          <p className="text-lg font-medium mb-2">No guides found</p>
+          <p className="text-sm">Try a different difficulty or category.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {growingTips.map((tip) => (
+            <Link key={tip.id} href={`/growing-tips/${tip.slug}`}>
+              <Card hover className="h-full">
+                <div className="relative aspect-video overflow-hidden">
+                  <Image
+                    fill
+                    src={tip.image_url}
+                    alt={tip.title}
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
                 </div>
-                <h3 className="font-semibold text-[var(--foreground)] text-sm leading-snug mb-2">
-                  {tip.title}
-                </h3>
-                <p className="text-xs text-[var(--muted)] line-clamp-2 mb-3">{tip.excerpt}</p>
-                <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                  <span>{tip.author_name}</span>
-                  <span>·</span>
-                  <Clock className="h-3 w-3" />
-                  <span>{tip.read_time} min</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-10 text-center">
-        <Button variant="outline">Load More Guides</Button>
-      </div>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={cn("text-xs px-2 py-0.5 rounded-full border", difficultyStyle[tip.difficulty])}>
+                      {tip.difficulty.charAt(0).toUpperCase() + tip.difficulty.slice(1)}
+                    </span>
+                    <Badge variant="default">{tip.category}</Badge>
+                  </div>
+                  <h3 className="font-semibold text-[var(--foreground)] text-sm leading-snug mb-2">{tip.title}</h3>
+                  <p className="text-xs text-[var(--muted)] line-clamp-2 mb-3">{tip.excerpt}</p>
+                  <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+                    <span>{tip.author_name}</span>
+                    <span>·</span>
+                    <Clock className="h-3 w-3" />
+                    <span>{tip.read_time} min</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

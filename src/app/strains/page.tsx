@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -57,11 +58,13 @@ export default async function StrainsPage({ searchParams }: Props) {
               {strains.map((strain) => (
                 <Link key={strain.id} href={`/strains/${strain.slug}`}>
                   <Card hover className="h-full">
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <img
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <Image
+                        fill
                         src={strain.image_url}
                         alt={strain.name}
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        className="object-cover transition-transform duration-300 hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       />
                     </div>
                     <CardContent className="p-4">

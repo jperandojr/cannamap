@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, Leaf, MapPin, Sprout, Newspaper, BookOpen, Clock, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -85,10 +86,12 @@ export default async function SearchPage({ searchParams }: Props) {
                 <Link key={s.id} href={`/strains/${s.slug}`}>
                   <Card hover>
                     <CardContent className="p-4 flex gap-3">
-                      <img
+                      <Image
                         src={s.image_url}
                         alt={s.name}
-                        className="w-16 h-16 rounded-lg object-cover shrink-0"
+                        width={64}
+                        height={64}
+                        className="rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
                         <p className="font-medium text-[var(--foreground)] truncate">{s.name}</p>
@@ -181,10 +184,12 @@ export default async function SearchPage({ searchParams }: Props) {
                 <Link key={a.id} href={`/news/${a.slug}`}>
                   <Card hover>
                     <CardContent className="p-4 flex gap-3">
-                      <img
+                      <Image
                         src={a.image_url}
                         alt={a.title}
-                        className="w-20 h-16 rounded-lg object-cover shrink-0"
+                        width={80}
+                        height={64}
+                        className="rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
                         <Badge variant="default" className="mb-1">{a.category}</Badge>
@@ -217,10 +222,12 @@ export default async function SearchPage({ searchParams }: Props) {
                 <Link key={t.id} href={`/growing-tips/${t.slug}`}>
                   <Card hover>
                     <CardContent className="p-4 flex gap-3">
-                      <img
+                      <Image
                         src={t.image_url}
                         alt={t.title}
-                        className="w-20 h-16 rounded-lg object-cover shrink-0"
+                        width={80}
+                        height={64}
+                        className="rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
                         <span className={cn("text-xs px-2 py-0.5 rounded-full", difficultyColor[t.difficulty])}>

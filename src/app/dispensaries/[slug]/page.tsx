@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, MapPin, Phone, Globe, Clock, CheckCircle, Share2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,8 +43,34 @@ export default async function DispensaryDetailPage({ params }: Props) {
 
   const today = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: dispensary.name,
+    description: dispensary.description,
+    image: dispensary.images[0],
+    telephone: dispensary.phone,
+    url: dispensary.website,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: dispensary.address,
+      addressLocality: dispensary.city,
+      addressRegion: dispensary.state,
+      postalCode: dispensary.zip,
+      addressCountry: dispensary.country,
+    },
+    aggregateRating: dispensary.review_count > 0 ? {
+      "@type": "AggregateRating",
+      ratingValue: dispensary.rating,
+      reviewCount: dispensary.review_count,
+      bestRating: 5,
+      worstRating: 1,
+    } : undefined,
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-6">
         <Link
           href="/dispensaries"
@@ -54,11 +81,14 @@ export default async function DispensaryDetailPage({ params }: Props) {
       </div>
 
       {/* Hero image */}
-      <div className="aspect-[21/9] overflow-hidden rounded-2xl mb-8">
-        <img
+      <div className="relative aspect-[21/9] overflow-hidden rounded-2xl mb-8">
+        <Image
+          fill
           src={dispensary.images[0]}
           alt={dispensary.name}
-          className="w-full h-full object-cover"
+          className="object-cover"
+          sizes="100vw"
+          priority
         />
       </div>
 

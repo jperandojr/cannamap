@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { MapPin, CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,11 +60,13 @@ export default async function DispensariesPage({ searchParams }: Props) {
                   <Card hover>
                     <CardContent className="p-0">
                       <div className="flex flex-col sm:flex-row">
-                        <div className="sm:w-48 shrink-0">
-                          <img
+                        <div className="relative w-full sm:w-48 h-40 shrink-0">
+                          <Image
+                            fill
                             src={dispensary.images[0]}
                             alt={dispensary.name}
-                            className="w-full h-40 sm:h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none"
+                            className="object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none"
+                            sizes="(max-width: 640px) 100vw, 192px"
                           />
                         </div>
                         <div className="flex-1 p-5">

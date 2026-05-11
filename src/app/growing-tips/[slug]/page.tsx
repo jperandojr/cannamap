@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, Clock, Share2, Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,8 +36,21 @@ export default async function GrowingTipDetailPage({ params }: Props) {
 
   const related = allTips.filter((t) => t.id !== tip.id).slice(0, 3);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: tip.title,
+    description: tip.excerpt,
+    image: tip.image_url,
+    datePublished: tip.published_at,
+    author: { "@type": "Person", name: tip.author_name },
+    publisher: { "@type": "Organization", name: "GrowingWeed.com" },
+    articleSection: tip.category,
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-6">
         <Link
           href="/growing-tips"
@@ -86,8 +100,8 @@ export default async function GrowingTipDetailPage({ params }: Props) {
           </div>
 
           {/* Hero */}
-          <div className="aspect-video overflow-hidden rounded-xl mb-8">
-            <img src={tip.image_url} alt={tip.title} className="w-full h-full object-cover" />
+          <div className="relative aspect-video overflow-hidden rounded-xl mb-8">
+            <Image fill src={tip.image_url} alt={tip.title} className="object-cover" sizes="(max-width: 1024px) 100vw, 66vw" priority />
           </div>
 
           {/* Content */}
@@ -130,10 +144,12 @@ export default async function GrowingTipDetailPage({ params }: Props) {
                 <Link key={t.id} href={`/growing-tips/${t.slug}`}>
                   <Card hover>
                     <CardContent className="p-3 flex gap-3">
-                      <img
+                      <Image
                         src={t.image_url}
                         alt={t.title}
-                        className="w-16 h-14 rounded-lg object-cover shrink-0"
+                        width={64}
+                        height={56}
+                        className="rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-[var(--foreground)] line-clamp-2 leading-snug">

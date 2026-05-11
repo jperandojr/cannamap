@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: {
@@ -19,11 +20,13 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const profile = user ? await getProfile(user.id) : null;
+  const isAdmin = profile?.role === "admin";
 
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <Header user={user} />
+        <Header user={user} isAdmin={isAdmin} />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

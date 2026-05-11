@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, Leaf, MapPin, Sprout, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getUserFavorites } from "@/lib/db";
@@ -69,8 +70,8 @@ export default async function FavoritesPage() {
               {strains.map((s) => (
                 <Link key={s.id} href={`/strains/${s.slug}`}>
                   <Card hover className="h-full">
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <img src={s.image_url} alt={s.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <Image fill src={s.image_url} alt={s.name} className="object-cover transition-transform duration-300 hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw" />
                     </div>
                     <CardContent className="p-3">
                       <div className="flex items-start justify-between gap-2 mb-1">

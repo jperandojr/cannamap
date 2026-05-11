@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, Leaf, Info, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
@@ -45,6 +46,21 @@ export default async function StrainDetailPage({ params }: Props) {
   const related = allStrains.filter((s) => s.type === strain.type && s.id !== strain.id).slice(0, 3);
   const pathname = `/strains/${slug}`;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: strain.name,
+    description: strain.description,
+    image: strain.image_url,
+    aggregateRating: strain.review_count > 0 ? {
+      "@type": "AggregateRating",
+      ratingValue: strain.rating,
+      reviewCount: strain.review_count,
+      bestRating: 5,
+      worstRating: 1,
+    } : undefined,
+  };
+
   const [favorited, reviews, userReview] = await Promise.all([
     user ? isFavorited("strain", strain.id) : Promise.resolve(false),
     getReviews("strain", strain.id),
@@ -53,6 +69,7 @@ export default async function StrainDetailPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Breadcrumb */}
       <div className="mb-6">
         <Link
@@ -67,11 +84,14 @@ export default async function StrainDetailPage({ params }: Props) {
         {/* Main content */}
         <div className="lg:col-span-2">
           {/* Image */}
-          <div className="aspect-[16/9] overflow-hidden rounded-2xl mb-6">
-            <img
+          <div className="relative aspect-[16/9] overflow-hidden rounded-2xl mb-6">
+            <Image
+              fill
               src={strain.image_url}
               alt={strain.name}
-              className="w-full h-full object-cover"
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 66vw"
+              priority
             />
           </div>
 
@@ -231,10 +251,12 @@ export default async function StrainDetailPage({ params }: Props) {
                 <Link key={s.id} href={`/strains/${s.slug}`}>
                   <Card hover>
                     <CardContent className="p-3 flex gap-3">
-                      <img
+                      <Image
                         src={s.image_url}
                         alt={s.name}
-                        className="w-14 h-14 rounded-lg object-cover shrink-0"
+                        width={56}
+                        height={56}
+                        className="rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-[var(--foreground)] truncate">

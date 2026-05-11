@@ -35,8 +35,24 @@ export default async function SeedBankDetailPage({ params }: Props) {
     user ? getUserReview("seed_bank", bank.id) : Promise.resolve(null),
   ]);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: bank.name,
+    description: bank.description,
+    url: bank.website,
+    aggregateRating: bank.review_count > 0 ? {
+      "@type": "AggregateRating",
+      ratingValue: bank.rating,
+      reviewCount: bank.review_count,
+      bestRating: 5,
+      worstRating: 1,
+    } : undefined,
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-6">
         <Link
           href="/seed-banks"

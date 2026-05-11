@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, X, Leaf, LogIn, LogOut, User, Heart } from "lucide-react";
+import { Menu, X, Leaf, LogIn, LogOut, User, Heart, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/auth/actions";
@@ -19,9 +19,10 @@ const navLinks = [
 
 interface HeaderProps {
   user: SupabaseUser | null;
+  isAdmin?: boolean;
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user, isAdmin }: HeaderProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -93,6 +94,18 @@ export function Header({ user }: HeaderProps) {
                       >
                         <Heart className="h-4 w-4 text-[var(--muted)]" /> My Favorites
                       </Link>
+                      {isAdmin && (
+                        <>
+                          <div className="border-t border-[var(--border)] my-1" />
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--primary)] hover:bg-[var(--surface)] transition-colors"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <LayoutDashboard className="h-4 w-4" /> Admin Panel
+                          </Link>
+                        </>
+                      )}
                       <div className="border-t border-[var(--border)] my-1" />
                       <form action={logout}>
                         <button

@@ -153,6 +153,29 @@ alter table public.favorites enable row level security;
 create policy "Users can view their own favorites" on public.favorites for select using (auth.uid() = user_id);
 create policy "Users can manage their own favorites" on public.favorites for all using (auth.uid() = user_id);
 
+-- Submissions (user-submitted listing requests)
+create table public.submissions (
+  id uuid primary key default uuid_generate_v4(),
+  type text not null check (type in ('dispensary', 'seed_bank')),
+  name text not null,
+  description text not null,
+  website text,
+  contact_email text not null,
+  country text,
+  address text,
+  city text,
+  state text,
+  notes text,
+  user_id uuid references public.profiles(id) on delete set null,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz default now()
+);
+alter table public.submissions enable row level security;
+create policy "Users can view their own submissions" on public.submissions for select using (auth.uid() = user_id);
+create policy "Admins can view all submissions" on public.submissions for select using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Anyone can insert submissions" on public.submissions for insert with check (true);
+create policy "Admins can update submissions" on public.submissions for update using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
 -- Auto-create profile on sign up
 create or replace function public.handle_new_user()
 returns trigger as $$

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, Clock, Share2, Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,8 +30,20 @@ export default async function ArticlePage({ params }: Props) {
 
   const related = allArticles.filter((a) => a.id !== article.id).slice(0, 3);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: article.excerpt,
+    image: article.image_url,
+    datePublished: article.published_at,
+    author: { "@type": "Person", name: article.author_name },
+    publisher: { "@type": "Organization", name: "GrowingWeed.com" },
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-6">
         <Link
           href="/news"
@@ -51,10 +64,12 @@ export default async function ArticlePage({ params }: Props) {
           {/* Author + meta */}
           <div className="flex items-center justify-between mb-6 pb-6 border-b border-[var(--border)]">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src={article.author_avatar}
                 alt={article.author_name}
-                className="w-10 h-10 rounded-full object-cover"
+                width={40}
+                height={40}
+                className="rounded-full object-cover"
               />
               <div>
                 <p className="text-sm font-medium text-[var(--foreground)]">{article.author_name}</p>
@@ -77,11 +92,14 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           {/* Hero image */}
-          <div className="aspect-video overflow-hidden rounded-xl mb-8">
-            <img
+          <div className="relative aspect-video overflow-hidden rounded-xl mb-8">
+            <Image
+              fill
               src={article.image_url}
               alt={article.title}
-              className="w-full h-full object-cover"
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 66vw"
+              priority
             />
           </div>
 
@@ -129,10 +147,12 @@ export default async function ArticlePage({ params }: Props) {
                 <Link key={a.id} href={`/news/${a.slug}`}>
                   <Card hover>
                     <CardContent className="p-3 flex gap-3">
-                      <img
+                      <Image
                         src={a.image_url}
                         alt={a.title}
-                        className="w-16 h-14 rounded-lg object-cover shrink-0"
+                        width={64}
+                        height={56}
+                        className="rounded-lg object-cover shrink-0"
                       />
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-[var(--foreground)] line-clamp-2 leading-snug">
