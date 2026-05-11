@@ -1,0 +1,68 @@
+import type { SeedBank } from "@/lib/types";
+
+export const seedBanks: SeedBank[] = [
+  {
+    id: "1",
+    slug: "dutch-passion",
+    name: "Dutch Passion",
+    description:
+      "Founded in 1987, Dutch Passion is one of the oldest and most respected cannabis seed banks in the world. Known for pioneering feminized seeds in 1994 and consistently producing award-winning genetics.",
+    country: "Netherlands",
+    website: "https://dutch-passion.com",
+    shipping_countries: ["US", "CA", "GB", "AU", "DE", "FR", "ES", "IT", "NL"],
+    logo_url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200",
+    verified: true,
+    rating: 4.7,
+    review_count: 892,
+    strain_count: 84,
+    created_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "2",
+    slug: "barneys-farm",
+    name: "Barney's Farm",
+    description:
+      "Barney's Farm is a world-renowned seed bank and cannabis breeder based in Amsterdam. With decades of experience and countless awards, they produce some of the most sought-after genetics in the industry.",
+    country: "Netherlands",
+    website: "https://barneysfarm.com",
+    shipping_countries: ["US", "CA", "GB", "DE", "FR", "ES", "IT", "NL", "AU", "NZ"],
+    logo_url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200",
+    verified: true,
+    rating: 4.6,
+    review_count: 1243,
+    strain_count: 127,
+    created_at: "2024-01-02T00:00:00Z",
+  },
+  {
+    id: "3",
+    slug: "royal-queen-seeds",
+    name: "Royal Queen Seeds",
+    description:
+      "Royal Queen Seeds is a European cannabis seed company with a passion for producing the highest quality cannabis genetics. Their extensive catalog includes regular, feminized, and autoflowering seeds.",
+    country: "Spain",
+    website: "https://royalqueenseeds.com",
+    shipping_countries: ["US", "CA", "GB", "DE", "FR", "ES", "IT", "NL", "PT", "BE"],
+    logo_url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200",
+    verified: true,
+    rating: 4.5,
+    review_count: 2156,
+    strain_count: 95,
+    created_at: "2024-01-03T00:00:00Z",
+  },
+  {
+    id: "4",
+    slug: "seed-city",
+    name: "Seed City",
+    description:
+      "Seed City is one of the largest online cannabis seed retailers, carrying seeds from over 100 breeders worldwide. They offer competitive pricing and exceptional customer service.",
+    country: "United Kingdom",
+    website: "https://seedcity.com",
+    shipping_countries: ["GB", "US", "CA", "AU", "DE", "FR", "ES", "IT", "NL"],
+    logo_url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200",
+    verified: true,
+    rating: 4.4,
+    review_count: 3421,
+    strain_count: 450,
+    created_at: "2024-01-04T00:00:00Z",
+  },
+];
