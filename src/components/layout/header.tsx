@@ -31,7 +31,7 @@ export function Header() {
               <Leaf className="h-4 w-4 text-white" />
             </div>
             <span className="text-lg font-bold text-[var(--foreground)]">
-              Cannamap
+              GrowingWeed.com
             </span>
           </Link>
 

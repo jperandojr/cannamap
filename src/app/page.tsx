@@ -71,7 +71,7 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-4 py-1.5 text-sm text-[var(--primary)] mb-6">
             <TrendingUp className="h-3.5 w-3.5" />
-            The #1 Cannabis Directory
+            GrowingWeed.com
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-[var(--foreground)] mb-6 leading-tight">

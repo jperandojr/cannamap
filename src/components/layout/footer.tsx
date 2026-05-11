@@ -35,11 +35,10 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)]">
                 <Leaf className="h-4 w-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-[var(--foreground)]">Cannamap</span>
+              <span className="text-lg font-bold text-[var(--foreground)]">GrowingWeed.com</span>
             </Link>
             <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Your complete cannabis directory. Find strains, dispensaries, and seed banks
-              near you.
+              Your #1 source for cannabis strains, dispensaries, seed banks, news and growing guides.
             </p>
           </div>
 
@@ -67,7 +66,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-[var(--border)] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-[var(--muted)]">
-            © {new Date().getFullYear()} Cannamap. All rights reserved.
+            © {new Date().getFullYear()} GrowingWeed.com. All rights reserved.
           </p>
           <p className="text-xs text-[var(--muted)] text-center">
             Cannabis laws vary by location. Know your local laws. For adults 21+ only.

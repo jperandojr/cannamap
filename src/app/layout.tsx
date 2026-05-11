@@ -5,11 +5,11 @@ import { Footer } from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: {
-    default: "Cannamap — Cannabis Directory",
-    template: "%s | Cannamap",
+    default: "GrowingWeed.com — Cannabis Directory",
+    template: "%s | GrowingWeed.com",
   },
   description:
-    "The complete cannabis directory. Find strains, dispensaries, seed banks, news and growing tips.",
+    "GrowingWeed.com — the complete cannabis directory. Find strains, dispensaries, seed banks, news and growing tips.",
   keywords: ["cannabis", "marijuana", "strains", "dispensaries", "seed banks", "growing tips"],
 };
 

@@ -19,7 +19,7 @@ export default function LoginPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)]">
               <Leaf className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-[var(--foreground)]">Cannamap</span>
+            <span className="text-xl font-bold text-[var(--foreground)]">GrowingWeed.com</span>
           </Link>
           <h1 className="text-2xl font-bold text-[var(--foreground)] mt-6 mb-2">Welcome back</h1>
           <p className="text-sm text-[var(--muted)]">
