@@ -9,7 +9,7 @@ import { deleteStrain } from "./actions";
 export const metadata: Metadata = { title: "Strains — Admin" };
 
 export default async function AdminStrainsPage() {
-  const strains = await getStrains();
+  const { data: strains } = await getStrains();
 
   return (
     <div>

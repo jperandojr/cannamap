@@ -9,7 +9,7 @@ import { deleteDispensary } from "./actions";
 export const metadata: Metadata = { title: "Dispensaries — Admin" };
 
 export default async function AdminDispensariesPage() {
-  const dispensaries = await getDispensaries();
+  const { data: dispensaries } = await getDispensaries();
 
   return (
     <div>

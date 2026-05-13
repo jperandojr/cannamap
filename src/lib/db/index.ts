@@ -2,12 +2,15 @@ import { createClient } from "@/lib/supabase/server";
 import type { Strain, Dispensary, SeedBank, Article, GrowingTip, Profile } from "@/lib/types";
 
 // --- Strains ---
+export const PAGE_SIZE = 24;
+
 export interface StrainFilters {
   type?: string;
   q?: string;
   sort?: string;
   thc?: string;
   effect?: string;
+  page?: number;
 }
 
 const thcRanges: Record<string, [number, number]> = {
@@ -18,9 +21,9 @@ const thcRanges: Record<string, [number, number]> = {
   "25plus": [25, 100],
 };
 
-export async function getStrains(filters?: StrainFilters): Promise<Strain[]> {
+export async function getStrains(filters?: StrainFilters): Promise<{ data: Strain[]; count: number }> {
   const supabase = await createClient();
-  let query = supabase.from("strains").select("*");
+  let query = supabase.from("strains").select("*", { count: "exact" });
 
   if (filters?.type && filters.type !== "all") {
     query = query.eq("type", filters.type.toLowerCase());
@@ -44,8 +47,13 @@ export async function getStrains(filters?: StrainFilters): Promise<Strain[]> {
     query = query.order("review_count", { ascending: false });
   }
 
-  const { data } = await query;
-  return (data as Strain[]) ?? [];
+  if (filters?.page) {
+    const from = (filters.page - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+  }
+
+  const { data, count } = await query;
+  return { data: (data as Strain[]) ?? [], count: count ?? 0 };
 }
 
 export async function getStrainBySlug(slug: string): Promise<Strain | null> {
@@ -64,11 +72,12 @@ export interface DispensaryFilters {
   state?: string;
   sort?: string;
   verified?: boolean;
+  page?: number;
 }
 
-export async function getDispensaries(filters?: DispensaryFilters): Promise<Dispensary[]> {
+export async function getDispensaries(filters?: DispensaryFilters): Promise<{ data: Dispensary[]; count: number }> {
   const supabase = await createClient();
-  let query = supabase.from("dispensaries").select("*");
+  let query = supabase.from("dispensaries").select("*", { count: "exact" });
 
   if (filters?.q) {
     query = query.ilike("name", `%${filters.q}%`);
@@ -86,8 +95,13 @@ export async function getDispensaries(filters?: DispensaryFilters): Promise<Disp
     query = query.order("review_count", { ascending: false });
   }
 
-  const { data } = await query;
-  return (data as Dispensary[]) ?? [];
+  if (filters?.page) {
+    const from = (filters.page - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+  }
+
+  const { data, count } = await query;
+  return { data: (data as Dispensary[]) ?? [], count: count ?? 0 };
 }
 
 export async function getDispensaryBySlug(slug: string): Promise<Dispensary | null> {
@@ -106,11 +120,12 @@ export interface SeedBankFilters {
   country?: string;
   sort?: string;
   verified?: boolean;
+  page?: number;
 }
 
-export async function getSeedBanks(filters?: SeedBankFilters): Promise<SeedBank[]> {
+export async function getSeedBanks(filters?: SeedBankFilters): Promise<{ data: SeedBank[]; count: number }> {
   const supabase = await createClient();
-  let query = supabase.from("seed_banks").select("*");
+  let query = supabase.from("seed_banks").select("*", { count: "exact" });
 
   if (filters?.q) query = query.ilike("name", `%${filters.q}%`);
   if (filters?.country && filters.country !== "all") query = query.eq("country", filters.country);
@@ -120,8 +135,13 @@ export async function getSeedBanks(filters?: SeedBankFilters): Promise<SeedBank[
   else if (filters?.sort === "reviews") query = query.order("review_count", { ascending: false });
   else query = query.order("rating", { ascending: false });
 
-  const { data } = await query;
-  return (data as SeedBank[]) ?? [];
+  if (filters?.page) {
+    const from = (filters.page - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+  }
+
+  const { data, count } = await query;
+  return { data: (data as SeedBank[]) ?? [], count: count ?? 0 };
 }
 
 export async function getSeedBankBySlug(slug: string): Promise<SeedBank | null> {
@@ -138,18 +158,25 @@ export async function getSeedBankBySlug(slug: string): Promise<SeedBank | null> 
 export interface ArticleFilters {
   q?: string;
   category?: string;
+  page?: number;
 }
 
-export async function getArticles(filters?: ArticleFilters): Promise<Article[]> {
+export async function getArticles(filters?: ArticleFilters): Promise<{ data: Article[]; count: number }> {
   const supabase = await createClient();
-  let query = supabase.from("articles").select("*").not("published_at", "is", null);
+  let query = supabase.from("articles").select("*", { count: "exact" }).not("published_at", "is", null);
 
   if (filters?.q) query = query.ilike("title", `%${filters.q}%`);
   if (filters?.category && filters.category !== "all") query = query.eq("category", filters.category);
 
   query = query.order("published_at", { ascending: false });
-  const { data } = await query;
-  return (data as Article[]) ?? [];
+
+  if (filters?.page) {
+    const from = (filters.page - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+  }
+
+  const { data, count } = await query;
+  return { data: (data as Article[]) ?? [], count: count ?? 0 };
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
@@ -268,19 +295,26 @@ export interface GrowingTipFilters {
   q?: string;
   difficulty?: string;
   category?: string;
+  page?: number;
 }
 
-export async function getGrowingTips(filters?: GrowingTipFilters): Promise<GrowingTip[]> {
+export async function getGrowingTips(filters?: GrowingTipFilters): Promise<{ data: GrowingTip[]; count: number }> {
   const supabase = await createClient();
-  let query = supabase.from("growing_tips").select("*").not("published_at", "is", null);
+  let query = supabase.from("growing_tips").select("*", { count: "exact" }).not("published_at", "is", null);
 
   if (filters?.q) query = query.ilike("title", `%${filters.q}%`);
   if (filters?.difficulty && filters.difficulty !== "all") query = query.eq("difficulty", filters.difficulty.toLowerCase());
   if (filters?.category && filters.category !== "all") query = query.ilike("category", filters.category);
 
   query = query.order("published_at", { ascending: false });
-  const { data } = await query;
-  return (data as GrowingTip[]) ?? [];
+
+  if (filters?.page) {
+    const from = (filters.page - 1) * PAGE_SIZE;
+    query = query.range(from, from + PAGE_SIZE - 1);
+  }
+
+  const { data, count } = await query;
+  return { data: (data as GrowingTip[]) ?? [], count: count ?? 0 };
 }
 
 export async function getGrowingTipBySlug(slug: string): Promise<GrowingTip | null> {

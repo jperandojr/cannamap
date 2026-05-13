@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import { Clock, Sprout } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getGrowingTips } from "@/lib/db";
+import { Pagination } from "@/components/ui/pagination";
+import { getGrowingTips, PAGE_SIZE } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { GrowingTipFilters } from "./growing-tip-filters";
 
@@ -21,12 +22,14 @@ const difficultyStyle: Record<string, string> = {
 };
 
 interface Props {
-  searchParams: Promise<{ difficulty?: string; category?: string }>;
+  searchParams: Promise<{ difficulty?: string; category?: string; page?: string }>;
 }
 
 export default async function GrowingTipsPage({ searchParams }: Props) {
   const params = await searchParams;
-  const growingTips = await getGrowingTips({ difficulty: params.difficulty, category: params.category });
+  const page = Math.max(1, Number(params.page) || 1);
+  const { data: growingTips, count } = await getGrowingTips({ difficulty: params.difficulty, category: params.category, page });
+  const totalPages = Math.ceil(count / PAGE_SIZE);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
@@ -52,39 +55,42 @@ export default async function GrowingTipsPage({ searchParams }: Props) {
           <p className="text-sm">Try a different difficulty or category.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {growingTips.map((tip) => (
-            <Link key={tip.id} href={`/growing-tips/${tip.slug}`}>
-              <Card hover className="h-full">
-                <div className="relative aspect-video overflow-hidden">
-                  <Image
-                    fill
-                    src={tip.image_url}
-                    alt={tip.title}
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={cn("text-xs px-2 py-0.5 rounded-full border", difficultyStyle[tip.difficulty])}>
-                      {tip.difficulty.charAt(0).toUpperCase() + tip.difficulty.slice(1)}
-                    </span>
-                    <Badge variant="default">{tip.category}</Badge>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {growingTips.map((tip) => (
+              <Link key={tip.id} href={`/growing-tips/${tip.slug}`}>
+                <Card hover className="h-full">
+                  <div className="relative aspect-video overflow-hidden">
+                    <Image
+                      fill
+                      src={tip.image_url}
+                      alt={tip.title}
+                      className="object-cover transition-transform duration-300 hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
                   </div>
-                  <h3 className="font-semibold text-[var(--foreground)] text-sm leading-snug mb-2">{tip.title}</h3>
-                  <p className="text-xs text-[var(--muted)] line-clamp-2 mb-3">{tip.excerpt}</p>
-                  <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                    <span>{tip.author_name}</span>
-                    <span>·</span>
-                    <Clock className="h-3 w-3" />
-                    <span>{tip.read_time} min</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={cn("text-xs px-2 py-0.5 rounded-full border", difficultyStyle[tip.difficulty])}>
+                        {tip.difficulty.charAt(0).toUpperCase() + tip.difficulty.slice(1)}
+                      </span>
+                      <Badge variant="default">{tip.category}</Badge>
+                    </div>
+                    <h3 className="font-semibold text-[var(--foreground)] text-sm leading-snug mb-2">{tip.title}</h3>
+                    <p className="text-xs text-[var(--muted)] line-clamp-2 mb-3">{tip.excerpt}</p>
+                    <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+                      <span>{tip.author_name}</span>
+                      <span>·</span>
+                      <Clock className="h-3 w-3" />
+                      <span>{tip.read_time} min</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} basePath="/growing-tips" searchParams={params} />
+        </>
       )}
     </div>
   );

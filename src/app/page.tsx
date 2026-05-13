@@ -54,7 +54,7 @@ const strainTypeColor: Record<string, "indica" | "sativa" | "hybrid"> = {
 };
 
 export default async function HomePage() {
-  const [strains, articles, growingTips] = await Promise.all([
+  const [{ data: strains }, { data: articles }, { data: growingTips }] = await Promise.all([
     getStrains(),
     getArticles(),
     getGrowingTips(),

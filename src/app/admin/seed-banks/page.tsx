@@ -9,7 +9,7 @@ import { deleteSeedBank } from "./actions";
 export const metadata: Metadata = { title: "Seed Banks — Admin" };
 
 export default async function AdminSeedBanksPage() {
-  const seedBanks = await getSeedBanks();
+  const { data: seedBanks } = await getSeedBanks();
 
   return (
     <div>

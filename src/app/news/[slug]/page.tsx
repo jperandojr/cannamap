@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const [article, allArticles] = await Promise.all([
+  const [article, { data: allArticles }] = await Promise.all([
     getArticleBySlug(slug),
     getArticles(),
   ]);

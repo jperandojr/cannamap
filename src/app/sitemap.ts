@@ -4,13 +4,14 @@ import { getStrains, getDispensaries, getSeedBanks, getArticles, getGrowingTips 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://growingweed.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [strains, dispensaries, seedBanks, articles, tips] = await Promise.all([
-    getStrains(),
-    getDispensaries(),
-    getSeedBanks(),
-    getArticles(),
-    getGrowingTips(),
-  ]);
+  const [{ data: strains }, { data: dispensaries }, { data: seedBanks }, { data: articles }, { data: tips }] =
+    await Promise.all([
+      getStrains(),
+      getDispensaries(),
+      getSeedBanks(),
+      getArticles(),
+      getGrowingTips(),
+    ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, changeFrequency: "daily", priority: 1 },

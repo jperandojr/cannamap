@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "@/components/ui/star-rating";
-import { getStrains } from "@/lib/db";
+import { Pagination } from "@/components/ui/pagination";
+import { getStrains, PAGE_SIZE } from "@/lib/db";
 import { StrainFilters } from "./strain-filters";
 
 export const metadata: Metadata = {
@@ -20,12 +21,14 @@ const typeVariant: Record<string, "indica" | "sativa" | "hybrid"> = {
 };
 
 interface Props {
-  searchParams: Promise<{ type?: string; q?: string; sort?: string; thc?: string; effect?: string }>;
+  searchParams: Promise<{ type?: string; q?: string; sort?: string; thc?: string; effect?: string; page?: string }>;
 }
 
 export default async function StrainsPage({ searchParams }: Props) {
   const filters = await searchParams;
-  const strains = await getStrains(filters);
+  const page = Math.max(1, Number(filters.page) || 1);
+  const { data: strains, count } = await getStrains({ ...filters, page });
+  const totalPages = Math.ceil(count / PAGE_SIZE);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
@@ -45,7 +48,7 @@ export default async function StrainsPage({ searchParams }: Props) {
 
         <div className="flex-1">
           <p className="text-sm text-[var(--muted)] mb-6">
-            {strains.length} {strains.length === 1 ? "strain" : "strains"} found
+            {count} {count === 1 ? "strain" : "strains"} found
           </p>
 
           {strains.length === 0 ? (
@@ -54,46 +57,49 @@ export default async function StrainsPage({ searchParams }: Props) {
               <p className="text-sm">Try adjusting or clearing your filters.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {strains.map((strain) => (
-                <Link key={strain.id} href={`/strains/${strain.slug}`}>
-                  <Card hover className="h-full">
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <Image
-                        fill
-                        src={strain.image_url}
-                        alt={strain.name}
-                        className="object-cover transition-transform duration-300 hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-[var(--foreground)] leading-tight">
-                          {strain.name}
-                        </h3>
-                        <Badge variant={typeVariant[strain.type]}>{strain.type}</Badge>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {strains.map((strain) => (
+                  <Link key={strain.id} href={`/strains/${strain.slug}`}>
+                    <Card hover className="h-full">
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <Image
+                          fill
+                          src={strain.image_url}
+                          alt={strain.name}
+                          className="object-cover transition-transform duration-300 hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        />
                       </div>
-                      <StarRating rating={strain.rating} reviewCount={strain.review_count} className="mb-3" />
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {strain.effects.slice(0, 3).map((effect) => (
-                          <span
-                            key={effect}
-                            className="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-hover)] text-[var(--muted)]"
-                          >
-                            {effect}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex gap-4 text-xs text-[var(--muted)]">
-                        <span>THC: {strain.thc_min}–{strain.thc_max}%</span>
-                        <span>CBD: {strain.cbd_min}–{strain.cbd_max}%</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h3 className="font-semibold text-[var(--foreground)] leading-tight">
+                            {strain.name}
+                          </h3>
+                          <Badge variant={typeVariant[strain.type]}>{strain.type}</Badge>
+                        </div>
+                        <StarRating rating={strain.rating} reviewCount={strain.review_count} className="mb-3" />
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {strain.effects.slice(0, 3).map((effect) => (
+                            <span
+                              key={effect}
+                              className="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-hover)] text-[var(--muted)]"
+                            >
+                              {effect}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex gap-4 text-xs text-[var(--muted)]">
+                          <span>THC: {strain.thc_min}–{strain.thc_max}%</span>
+                          <span>CBD: {strain.cbd_min}–{strain.cbd_max}%</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              <Pagination page={page} totalPages={totalPages} basePath="/strains" searchParams={filters} />
+            </>
           )}
         </div>
       </div>

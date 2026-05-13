@@ -28,7 +28,7 @@ const difficultyStyle = {
 
 export default async function GrowingTipDetailPage({ params }: Props) {
   const { slug } = await params;
-  const [tip, allTips] = await Promise.all([
+  const [tip, { data: allTips }] = await Promise.all([
     getGrowingTipBySlug(slug),
     getGrowingTips(),
   ]);

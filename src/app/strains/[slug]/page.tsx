@@ -37,7 +37,7 @@ export default async function StrainDetailPage({ params }: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [strain, allStrains] = await Promise.all([
+  const [strain, { data: allStrains }] = await Promise.all([
     getStrainBySlug(slug),
     getStrains(),
   ]);

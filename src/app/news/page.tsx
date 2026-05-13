@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import { Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getArticles } from "@/lib/db";
+import { Pagination } from "@/components/ui/pagination";
+import { getArticles, PAGE_SIZE } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import { NewsCategoryTabs } from "./news-filters";
 
@@ -15,12 +16,14 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  searchParams: Promise<{ category?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
 }
 
 export default async function NewsPage({ searchParams }: Props) {
   const params = await searchParams;
-  const articles = await getArticles({ category: params.category, q: params.q });
+  const page = Math.max(1, Number(params.page) || 1);
+  const { data: articles, count } = await getArticles({ category: params.category, q: params.q, page });
+  const totalPages = Math.ceil(count / PAGE_SIZE);
   const [featured, ...rest] = articles;
 
   return (
@@ -32,8 +35,8 @@ export default async function NewsPage({ searchParams }: Props) {
         </p>
       </div>
 
-      {/* Featured — only show when no filters active */}
-      {featured && !params.category && !params.q && (
+      {/* Featured — only show on first page with no filters active */}
+      {featured && !params.category && !params.q && page === 1 && (
         <Link href={`/news/${featured.slug}`} className="block mb-10">
           <Card hover>
             <CardContent className="p-0">
@@ -77,36 +80,38 @@ export default async function NewsPage({ searchParams }: Props) {
               <p className="text-sm">Try a different category.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {(params.category || params.q ? articles : rest).map((article) => (
-                <Link key={article.id} href={`/news/${article.slug}`}>
-                  <Card hover className="h-full">
-                    <div className="relative aspect-video overflow-hidden">
-                      <Image fill src={article.image_url} alt={article.title}
-                        className="object-cover transition-transform duration-300 hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, 50vw"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <Badge variant="default" className="mb-2">{article.category}</Badge>
-                      <h3 className="font-semibold text-[var(--foreground)] leading-snug mb-2">{article.title}</h3>
-                      <p className="text-sm text-[var(--muted)] line-clamp-2 mb-3">{article.excerpt}</p>
-                      <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                        <Image src={article.author_avatar} alt={article.author_name} width={20} height={20} className="rounded-full object-cover" />
-                        <span>{article.author_name}</span>
-                        <span>·</span>
-                        <Clock className="h-3 w-3" />
-                        <span>{article.read_time} min</span>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {(params.category || params.q || page > 1 ? articles : rest).map((article) => (
+                  <Link key={article.id} href={`/news/${article.slug}`}>
+                    <Card hover className="h-full">
+                      <div className="relative aspect-video overflow-hidden">
+                        <Image fill src={article.image_url} alt={article.title}
+                          className="object-cover transition-transform duration-300 hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      <CardContent className="p-4">
+                        <Badge variant="default" className="mb-2">{article.category}</Badge>
+                        <h3 className="font-semibold text-[var(--foreground)] leading-snug mb-2">{article.title}</h3>
+                        <p className="text-sm text-[var(--muted)] line-clamp-2 mb-3">{article.excerpt}</p>
+                        <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+                          <Image src={article.author_avatar} alt={article.author_name} width={20} height={20} className="rounded-full object-cover" />
+                          <span>{article.author_name}</span>
+                          <span>·</span>
+                          <Clock className="h-3 w-3" />
+                          <span>{article.read_time} min</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              <Pagination page={page} totalPages={totalPages} basePath="/news" searchParams={params} />
+            </>
           )}
         </div>
 
-        {/* Sidebar */}
         <aside className="w-full lg:w-72 shrink-0 space-y-6">
           <div>
             <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Recent Articles</h3>
