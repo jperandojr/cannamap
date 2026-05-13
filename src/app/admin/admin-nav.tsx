@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, InboxIcon } from "lucide-react";
+import { LayoutDashboard, InboxIcon, Leaf, MapPin, Sprout } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/submissions", label: "Submissions", icon: InboxIcon, exact: false },
+  { href: "/admin/strains", label: "Strains", icon: Leaf, exact: false },
+  { href: "/admin/dispensaries", label: "Dispensaries", icon: MapPin, exact: false },
+  { href: "/admin/seed-banks", label: "Seed Banks", icon: Sprout, exact: false },
 ];
 
 export function AdminNav() {

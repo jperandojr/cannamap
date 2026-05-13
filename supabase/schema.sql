@@ -63,6 +63,9 @@ create table public.dispensaries (
 );
 alter table public.dispensaries enable row level security;
 create policy "Dispensaries are viewable by everyone" on public.dispensaries for select using (true);
+create policy "Only admins can insert/update/delete dispensaries" on public.dispensaries for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
 
 -- Seed Banks
 create table public.seed_banks (
@@ -82,6 +85,9 @@ create table public.seed_banks (
 );
 alter table public.seed_banks enable row level security;
 create policy "Seed banks are viewable by everyone" on public.seed_banks for select using (true);
+create policy "Only admins can insert/update/delete seed banks" on public.seed_banks for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
 
 -- Articles
 create table public.articles (
