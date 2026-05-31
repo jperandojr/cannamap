@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Leaf } from "lucide-react";
+import Image from "next/image";
 
 const footerLinks = {
   Directory: [
@@ -32,11 +32,8 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)]">
-                <Leaf className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-lg font-bold text-[var(--foreground)]">GrowingWeed.com</span>
+            <Link href="/" className="inline-block mb-4">
+              <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-8 w-auto" />
             </Link>
             <p className="text-sm text-[var(--muted)] leading-relaxed">
               Your #1 source for cannabis strains, dispensaries, seed banks, news and growing guides.
