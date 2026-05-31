@@ -61,7 +61,7 @@ export default async function DispensariesPage({ searchParams }: Props) {
             <>
               <div className="space-y-4">
                 {dispensaries.map((dispensary) => (
-                  <Link key={dispensary.id} href={`/dispensaries/${dispensary.slug}`}>
+                  <Link key={dispensary.id} href={`/dispensaries/${dispensary.slug}`} className="block">
                     <Card hover>
                       <CardContent className="p-0">
                         <div className="flex flex-col sm:flex-row">
