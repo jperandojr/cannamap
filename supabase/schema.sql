@@ -107,6 +107,9 @@ create table public.articles (
 );
 alter table public.articles enable row level security;
 create policy "Published articles are viewable by everyone" on public.articles for select using (published_at is not null and published_at <= now());
+create policy "Admins can do anything with articles" on public.articles for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
 
 -- Growing Tips
 create table public.growing_tips (
@@ -126,6 +129,9 @@ create table public.growing_tips (
 );
 alter table public.growing_tips enable row level security;
 create policy "Published tips are viewable by everyone" on public.growing_tips for select using (published_at is not null and published_at <= now());
+create policy "Admins can do anything with growing tips" on public.growing_tips for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
 
 -- Reviews
 create table public.reviews (
