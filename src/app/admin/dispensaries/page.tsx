@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ExternalLink } from "lucide-react";
 import { getDispensaries } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/app/admin/delete-button";
@@ -47,10 +47,18 @@ export default async function AdminDispensariesPage() {
             <tbody className="divide-y divide-[var(--border)]">
               {dispensaries.map((d) => (
                 <tr key={d.id} className="hover:bg-[var(--surface-hover)] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[var(--foreground)]">{d.name}</td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {d.city}, {d.state}
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-[var(--foreground)]">{d.name}</div>
+                    <a
+                      href={`/dispensaries/${d.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-[var(--primary)] hover:underline mt-0.5"
+                    >
+                      /dispensaries/{d.slug} <ExternalLink className="h-3 w-3" />
+                    </a>
                   </td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{d.city}, {d.state}</td>
                   <td className="px-4 py-3">
                     {d.verified ? (
                       <Badge variant="success">Verified</Badge>
@@ -58,9 +66,7 @@ export default async function AdminDispensariesPage() {
                       <Badge variant="outline">Unverified</Badge>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {d.rating?.toFixed(1)} ({d.review_count})
-                  </td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{d.rating?.toFixed(1)} ({d.review_count})</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <Link

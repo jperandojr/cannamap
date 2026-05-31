@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ExternalLink } from "lucide-react";
 import { getSeedBanks } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/app/admin/delete-button";
@@ -48,7 +48,17 @@ export default async function AdminSeedBanksPage() {
             <tbody className="divide-y divide-[var(--border)]">
               {seedBanks.map((sb) => (
                 <tr key={sb.id} className="hover:bg-[var(--surface-hover)] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[var(--foreground)]">{sb.name}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-[var(--foreground)]">{sb.name}</div>
+                    <a
+                      href={`/seed-banks/${sb.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-[var(--primary)] hover:underline mt-0.5"
+                    >
+                      /seed-banks/{sb.slug} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </td>
                   <td className="px-4 py-3 text-[var(--muted)]">{sb.country}</td>
                   <td className="px-4 py-3 text-[var(--muted)]">{sb.strain_count}</td>
                   <td className="px-4 py-3">
@@ -58,9 +68,7 @@ export default async function AdminSeedBanksPage() {
                       <Badge variant="outline">Unverified</Badge>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {sb.rating?.toFixed(1)} ({sb.review_count})
-                  </td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{sb.rating?.toFixed(1)} ({sb.review_count})</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <Link

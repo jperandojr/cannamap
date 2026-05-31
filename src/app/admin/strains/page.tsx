@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ExternalLink } from "lucide-react";
 import { getStrains } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/app/admin/delete-button";
@@ -48,19 +48,23 @@ export default async function AdminStrainsPage() {
             <tbody className="divide-y divide-[var(--border)]">
               {strains.map((s) => (
                 <tr key={s.id} className="hover:bg-[var(--surface-hover)] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[var(--foreground)]">{s.name}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-[var(--foreground)]">{s.name}</div>
+                    <a
+                      href={`/strains/${s.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-[var(--primary)] hover:underline mt-0.5"
+                    >
+                      /strains/{s.slug} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </td>
                   <td className="px-4 py-3">
                     <Badge variant="outline" className="capitalize">{s.type}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {s.thc_min}–{s.thc_max}%
-                  </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {s.cbd_min}–{s.cbd_max}%
-                  </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {s.rating?.toFixed(1)} ({s.review_count})
-                  </td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{s.thc_min}–{s.thc_max}%</td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{s.cbd_min}–{s.cbd_max}%</td>
+                  <td className="px-4 py-3 text-[var(--muted)]">{s.rating?.toFixed(1)} ({s.review_count})</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <Link

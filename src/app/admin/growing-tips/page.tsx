@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/app/admin/delete-button";
@@ -16,7 +16,7 @@ export default async function AdminGrowingTipsPage() {
     .from("growing_tips")
     .select("*")
     .order("created_at", { ascending: false });
-  const tips = (data ?? []) as GrowingTip[];
+  const tips = (data ?? []) as (GrowingTip & { id: string; slug: string; created_at: string })[];
 
   const difficultyVariant: Record<string, "default" | "outline" | "success"> = {
     beginner: "success",
@@ -61,8 +61,16 @@ export default async function AdminGrowingTipsPage() {
             <tbody className="divide-y divide-[var(--border)]">
               {tips.map((tip) => (
                 <tr key={tip.id} className="hover:bg-[var(--surface-hover)] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[var(--foreground)] max-w-xs truncate">
-                    {tip.title}
+                  <td className="px-4 py-3 max-w-xs">
+                    <div className="font-medium text-[var(--foreground)] truncate">{tip.title}</div>
+                    <a
+                      href={`/growing-tips/${tip.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-[var(--primary)] hover:underline mt-0.5"
+                    >
+                      /growing-tips/{tip.slug} <ExternalLink className="h-3 w-3" />
+                    </a>
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant={difficultyVariant[tip.difficulty] ?? "default"} className="capitalize">

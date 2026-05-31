@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/app/admin/delete-button";
@@ -54,8 +54,16 @@ export default async function AdminNewsPage() {
             <tbody className="divide-y divide-[var(--border)]">
               {articles.map((article) => (
                 <tr key={article.id} className="hover:bg-[var(--surface-hover)] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[var(--foreground)] max-w-xs truncate">
-                    {article.title}
+                  <td className="px-4 py-3 max-w-xs">
+                    <div className="font-medium text-[var(--foreground)] truncate">{article.title}</div>
+                    <a
+                      href={`/news/${article.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-[var(--primary)] hover:underline mt-0.5"
+                    >
+                      /news/{article.slug} <ExternalLink className="h-3 w-3" />
+                    </a>
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant="default">{article.category}</Badge>
