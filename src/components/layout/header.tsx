@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, X, Leaf, LogIn, LogOut, User, Heart, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, Heart, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/auth/actions";
@@ -32,13 +33,8 @@ export function Header({ user, isAdmin }: HeaderProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)]">
-              <Leaf className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-bold text-[var(--foreground)]">
-              GrowingWeed.com
-            </span>
+          <Link href="/" className="shrink-0">
+            <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-8 w-auto" priority />
           </Link>
 
           {/* Desktop Nav */}
