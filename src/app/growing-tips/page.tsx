@@ -56,9 +56,9 @@ export default async function GrowingTipsPage({ searchParams }: Props) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {growingTips.map((tip) => (
-              <Link key={tip.id} href={`/growing-tips/${tip.slug}`}>
+              <Link key={tip.id} href={`/growing-tips/${tip.slug}`} className="block h-full">
                 <Card hover className="h-full">
                   <div className="relative aspect-video overflow-hidden">
                     <Image
@@ -69,9 +69,9 @@ export default async function GrowingTipsPage({ searchParams }: Props) {
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
                   </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full border", difficultyStyle[tip.difficulty])}>
+                  <CardContent className="p-4 pt-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={cn("text-xs px-2 py-0.5 rounded-full border font-medium", difficultyStyle[tip.difficulty])}>
                         {tip.difficulty.charAt(0).toUpperCase() + tip.difficulty.slice(1)}
                       </span>
                       <Badge variant="default">{tip.category}</Badge>
@@ -82,7 +82,7 @@ export default async function GrowingTipsPage({ searchParams }: Props) {
                       <span>{tip.author_name}</span>
                       <span>·</span>
                       <Clock className="h-3 w-3" />
-                      <span>{tip.read_time} min</span>
+                      <span>{tip.read_time} min read</span>
                     </div>
                   </CardContent>
                 </Card>

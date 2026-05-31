@@ -39,9 +39,9 @@ export default async function NewsPage({ searchParams }: Props) {
       {featured && !params.category && !params.q && page === 1 && (
         <Link href={`/news/${featured.slug}`} className="block mb-10">
           <Card hover>
-            <CardContent className="p-0">
+            <CardContent className="p-0 pt-0">
               <div className="flex flex-col md:flex-row">
-                <div className="relative md:w-1/2 h-56 md:h-80">
+                <div className="relative md:w-1/2 h-56 md:h-80 shrink-0">
                   <Image fill src={featured.image_url} alt={featured.title}
                     className="object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -49,8 +49,10 @@ export default async function NewsPage({ searchParams }: Props) {
                   />
                 </div>
                 <div className="flex-1 p-6 md:p-8 flex flex-col justify-center">
-                  <Badge variant="success" className="mb-3 self-start">Featured</Badge>
-                  <Badge variant="default" className="mb-3 self-start">{featured.category}</Badge>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant="success">Featured</Badge>
+                    <Badge variant="default">{featured.category}</Badge>
+                  </div>
                   <h2 className="text-2xl font-bold text-[var(--foreground)] mb-3 leading-snug">{featured.title}</h2>
                   <p className="text-[var(--muted)] mb-4 line-clamp-3">{featured.excerpt}</p>
                   <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
@@ -81,9 +83,9 @@ export default async function NewsPage({ searchParams }: Props) {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {(params.category || params.q || page > 1 ? articles : rest).map((article) => (
-                  <Link key={article.id} href={`/news/${article.slug}`}>
+                  <Link key={article.id} href={`/news/${article.slug}`} className="block h-full">
                     <Card hover className="h-full">
                       <div className="relative aspect-video overflow-hidden">
                         <Image fill src={article.image_url} alt={article.title}
@@ -91,16 +93,16 @@ export default async function NewsPage({ searchParams }: Props) {
                           sizes="(max-width: 640px) 100vw, 50vw"
                         />
                       </div>
-                      <CardContent className="p-4">
-                        <Badge variant="default" className="mb-2">{article.category}</Badge>
+                      <CardContent className="p-5 pt-5">
+                        <Badge variant="default" className="mb-3">{article.category}</Badge>
                         <h3 className="font-semibold text-[var(--foreground)] leading-snug mb-2">{article.title}</h3>
-                        <p className="text-sm text-[var(--muted)] line-clamp-2 mb-3">{article.excerpt}</p>
+                        <p className="text-sm text-[var(--muted)] line-clamp-2 mb-4">{article.excerpt}</p>
                         <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
                           <Image src={article.author_avatar} alt={article.author_name} width={20} height={20} className="rounded-full object-cover" />
                           <span>{article.author_name}</span>
                           <span>·</span>
                           <Clock className="h-3 w-3" />
-                          <span>{article.read_time} min</span>
+                          <span>{article.read_time} min read</span>
                         </div>
                       </CardContent>
                     </Card>
@@ -112,22 +114,21 @@ export default async function NewsPage({ searchParams }: Props) {
           )}
         </div>
 
-        <aside className="w-full lg:w-72 shrink-0 space-y-6">
-          <div>
-            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Recent Articles</h3>
-            <div className="space-y-3">
-              {articles.slice(0, 4).map((article) => (
-                <Link key={article.id} href={`/news/${article.slug}`}>
-                  <div className="flex gap-3 hover:opacity-80 transition-opacity">
-                    <Image src={article.image_url} alt={article.title} width={64} height={48} className="rounded-lg object-cover shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-[var(--foreground)] line-clamp-2 leading-snug">{article.title}</p>
-                      <p className="text-xs text-[var(--muted)] mt-1">{formatDate(article.published_at)}</p>
-                    </div>
+        <aside className="w-full lg:w-64 shrink-0">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Recent Articles</h3>
+          <div className="space-y-4">
+            {articles.slice(0, 5).map((article) => (
+              <Link key={article.id} href={`/news/${article.slug}`} className="block group">
+                <div className="flex gap-3">
+                  <Image src={article.image_url} alt={article.title} width={64} height={48}
+                    className="rounded-lg object-cover shrink-0 w-16 h-12" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-[var(--foreground)] line-clamp-2 leading-snug group-hover:text-[var(--primary)] transition-colors">{article.title}</p>
+                    <p className="text-xs text-[var(--muted)] mt-1">{formatDate(article.published_at)}</p>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </aside>
       </div>
