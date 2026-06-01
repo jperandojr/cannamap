@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-[calc(100vh-4rem)]">
       <aside className="w-56 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] px-3 py-6">
         <Link href="/admin" className="block px-3 mb-8">
-          <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-6 w-auto" />
+          <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-6 w-auto max-w-full" style={{ width: "auto" }} />
         </Link>
         <AdminNav />
       </aside>

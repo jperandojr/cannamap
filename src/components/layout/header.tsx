@@ -34,7 +34,7 @@ export function Header({ user, isAdmin }: HeaderProps) {
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="shrink-0">
-            <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-8 w-auto" priority />
+            <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-8 w-auto max-w-full" style={{ width: "auto" }} priority />
           </Link>
 
           {/* Desktop Nav */}

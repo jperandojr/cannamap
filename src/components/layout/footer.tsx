@@ -33,7 +33,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block mb-4">
-              <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-8 w-auto" />
+              <Image src="/logo.webp" alt="GrowingWeed" width={379} height={41} className="h-8 w-auto max-w-full" style={{ width: "auto" }} />
             </Link>
             <p className="text-sm text-[var(--muted)] leading-relaxed">
               Your #1 source for cannabis strains, dispensaries, seed banks, news and growing guides.
